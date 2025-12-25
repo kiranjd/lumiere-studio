@@ -12,9 +12,6 @@ const MODELS = {
   GEMINI_IMAGE: 'google/gemini-3-pro-image-preview',
   GEMINI_ASSESS: 'google/gemini-3-flash-preview',
   GPT_IMAGE: 'gpt-image-1.5',
-  FLUX: 'black-forest-labs/flux.2-pro',
-  Z_IMAGE_TURBO: 'prunaai/z-image-turbo',
-  QWEN_IMAGE_EDIT: 'qwen/qwen-image-edit-2511',
 };
 
 // Size mappings for OpenAI
@@ -27,15 +24,6 @@ const OAI_SIZES: Record<string, string> = {
   'low': '1024x1024',
   'medium': '1024x1536',
   'high': '1024x1536',
-};
-
-// Size mappings for Replicate (width x height)
-const REPLICATE_SIZES: Record<string, { width: number; height: number }> = {
-  '1:1': { width: 768, height: 768 },
-  '16:9': { width: 1024, height: 576 },
-  '9:16': { width: 576, height: 1024 },
-  '4:3': { width: 896, height: 672 },
-  '3:4': { width: 672, height: 896 },
 };
 
 // Store failed responses for debugging (accessible from console)
@@ -64,12 +52,12 @@ function logFailedResponse(context: string, response: any) {
 
 // Quality settings for each model type
 const QUALITY_CONFIG = {
-  low: { openai: 'low', flux_steps: 15, gemini_size: '1K' },
-  medium: { openai: 'medium', flux_steps: 28, gemini_size: '1K' },
-  high: { openai: 'high', flux_steps: 50, gemini_size: '2K' },
+  low: { openai: 'low', gemini_size: '1K' },
+  medium: { openai: 'medium', gemini_size: '1K' },
+  high: { openai: 'high', gemini_size: '2K' },
 } as const;
 
-// Generate with OpenRouter (Gemini, Flux)
+// Generate with OpenRouter (Gemini)
 export async function generateWithOpenRouter(params: {
   model: string;
   prompt: string;
@@ -91,7 +79,6 @@ export async function generateWithOpenRouter(params: {
   content.push({ type: 'text', text: promptText });
 
   // Build request body with model-specific quality settings
-  const isFlux = params.model.includes('flux');
   const isGemini = params.model.includes('gemini');
   const qualityConfig = QUALITY_CONFIG[params.quality];
 
@@ -111,16 +98,7 @@ export async function generateWithOpenRouter(params: {
     image_config: imageConfig,
   };
 
-  // Add Flux-specific quality settings (num_inference_steps)
-  if (isFlux) {
-    requestBody.provider = {
-      flux: {
-        num_inference_steps: qualityConfig.flux_steps,
-      },
-    };
-  }
-
-  console.log('[OpenRouter] Request:', { model: params.model, prompt: params.prompt, refsCount: params.refs.length, quality: params.quality, isFlux, isGemini, imageConfig });
+  console.log('[OpenRouter] Request:', { model: params.model, prompt: params.prompt, refsCount: params.refs.length, quality: params.quality, imageConfig });
 
   const res = await fetch('https://openrouter.ai/api/v1/chat/completions', {
     method: 'POST',
@@ -270,63 +248,10 @@ export async function generateWithOpenAI(params: {
   return imageUrl;
 }
 
-// Quality to inference steps mapping for z-image-turbo
-const REPLICATE_STEPS: Record<string, number> = {
-  low: 4,
-  medium: 8,
-  high: 16,
-};
-
-// Generate with Replicate (z-image-turbo) via backend proxy
-export async function generateWithReplicate(params: {
-  prompt: string;
-  aspect: string;
-  quality: 'low' | 'medium' | 'high';
-}): Promise<string> {
-  const size = REPLICATE_SIZES[params.aspect] || REPLICATE_SIZES['1:1'];
-  const steps = REPLICATE_STEPS[params.quality] || 8;
-
-  const requestBody = {
-    prompt: params.prompt,
-    width: size.width,
-    height: size.height,
-    num_inference_steps: steps,
-  };
-
-  console.log('[Replicate] Request:', requestBody);
-
-  // Use backend proxy to avoid CORS
-  const res = await fetch('http://localhost:8000/api/replicate/z-image-turbo', {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-    },
-    body: JSON.stringify(requestBody),
-  });
-
-  const data = await res.json();
-  console.log('[Replicate] Response:', data);
-
-  if (!res.ok) {
-    logFailedResponse('Replicate API Error', { request: requestBody, response: data });
-    throw new Error(data.detail || 'Replicate API error');
-  }
-
-  // Replicate returns output as array of URLs or single URL string
-  const imageUrl = Array.isArray(data.output) ? data.output[0] : data.output;
-  if (!imageUrl || typeof imageUrl !== 'string') {
-    logFailedResponse('Replicate No Image', { request: requestBody, response: data });
-    throw new Error('No image in response');
-  }
-
-  return imageUrl;
-}
-
 // Process a single queue item
 export async function processQueueItem(item: QueueItem): Promise<string> {
   const isOpenAI = item.model === MODELS.GPT_IMAGE;
-  const isReplicate = item.model === MODELS.Z_IMAGE_TURBO;
-  const quality = item.quality || 'medium'; // Fallback for older queue items
+  const quality = item.quality || 'medium';
 
   if (isOpenAI) {
     return generateWithOpenAI({
@@ -334,14 +259,6 @@ export async function processQueueItem(item: QueueItem): Promise<string> {
       refs: item.refs,
       quality: QUALITY_CONFIG[quality].openai,
       aspect: item.aspect,
-    });
-  }
-
-  if (isReplicate) {
-    return generateWithReplicate({
-      prompt: item.prompt,
-      aspect: item.aspect,
-      quality,
     });
   }
 

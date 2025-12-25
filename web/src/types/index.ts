@@ -76,7 +76,7 @@ export interface Assessment {
 export interface ModelConfig {
   id: string;
   name: string;
-  provider: 'openrouter' | 'openai' | 'replicate';
+  provider: 'openrouter' | 'openai';
   costPer: number;
   supportsRefs: boolean;
   maxRefs: number;
