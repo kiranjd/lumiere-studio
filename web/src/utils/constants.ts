@@ -4,7 +4,7 @@ import type { ModelConfig } from '../types';
 export const MODELS: ModelConfig[] = [
   {
     id: 'google/gemini-3-pro-image-preview',
-    name: 'Gemini 3 Pro',
+    name: 'Nano Banana',
     provider: 'openrouter',
     costPer: 0,
     supportsRefs: true,
