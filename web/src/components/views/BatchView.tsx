@@ -89,9 +89,9 @@ export function BatchView() {
         <span className="text-xs text-text-3">{batch.images.length} images</span>
       </div>
 
-      {/* Image grid */}
-      <div className="flex-1 overflow-y-auto p-6 pb-32">
-        <div className="flex flex-wrap gap-3 stagger">
+      {/* Image grid - same masonry layout as library */}
+      <div className="flex-1 overflow-y-auto p-3 sm:p-4 md:p-6 pb-32">
+        <div className="masonry-grid">
           {batch.images.map((img, index) => (
             <div key={img.file} className="relative group">
               <ImageCard
