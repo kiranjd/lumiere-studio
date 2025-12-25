@@ -769,16 +769,6 @@ class ReplicateRequest(BaseModel):
     num_inference_steps: int = 8  # 4=fast, 8=default, 16=quality
 
 
-class QwenImageEditRequest(BaseModel):
-    prompt: str
-    images: List[str]  # List of image URLs or base64
-    aspect_ratio: str = "1:1"
-    output_format: str = "webp"
-    output_quality: int = 95
-    go_fast: bool = True
-    seed: Optional[int] = None
-
-
 @app.post("/api/replicate/z-image-turbo")
 async def replicate_z_image_turbo(request: ReplicateRequest):
     """Proxy to Replicate API for z-image-turbo model"""

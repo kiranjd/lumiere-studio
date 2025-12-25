@@ -397,31 +397,23 @@ export function GeneratorIsland() {
             className="border-t border-border/50 bg-bg-3/30 overflow-hidden"
           >
             <div className="px-3 py-2 flex items-center gap-2">
-              {/* Model toggles - compact abbreviations */}
+              {/* Model toggles */}
               <div className="flex gap-1">
-                {MODELS.map((model) => {
-                  // Short names for compact display
-                  const shortName = model.name === 'Gemini 3' ? 'G3'
-                    : model.name === 'Flux 2' ? 'F2'
-                    : model.name === 'GPT Image' ? 'GPT'
-                    : model.name === 'Z-Turbo' ? 'ZT'
-                    : model.name.slice(0, 2);
-                  return (
-                    <button
-                      key={model.id}
-                      onClick={() => toggleModel(model.id)}
-                      title={model.name}
-                      className={cn(
-                        'w-9 h-7 rounded text-[10px] font-bold transition-all active:scale-95',
-                        selectedModels.includes(model.id)
-                          ? 'bg-gold text-void'
-                          : 'bg-bg-4 text-text-3 hover:text-text'
-                      )}
-                    >
-                      {shortName}
-                    </button>
-                  );
-                })}
+                {MODELS.map((model) => (
+                  <button
+                    key={model.id}
+                    onClick={() => toggleModel(model.id)}
+                    title={model.name}
+                    className={cn(
+                      'px-2 h-7 rounded text-[10px] font-medium transition-all active:scale-95 whitespace-nowrap',
+                      selectedModels.includes(model.id)
+                        ? 'bg-gold text-void'
+                        : 'bg-bg-4 text-text-3 hover:text-text'
+                    )}
+                  >
+                    {model.name}
+                  </button>
+                ))}
               </div>
 
               <div className="w-px h-5 bg-border/40" />
