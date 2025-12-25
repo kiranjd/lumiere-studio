@@ -4,7 +4,7 @@ Tired of paying monthly subscriptions for image generation tools? Frustrated by 
 
 I built this for myself — a no-nonsense UI to generate images using my own API keys. No limits. No subscriptions. Just you, your keys, and a smooth interface to experiment freely.
 
-https://github.com/kiranjd/lumiere-studio/raw/main/docs/demo.mp4
+<video src="https://github.com/kiranjd/lumiere-studio/raw/main/docs/demo.mp4" controls width="100%"></video>
 
 ## Why This Exists
 
