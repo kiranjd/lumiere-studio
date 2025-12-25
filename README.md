@@ -23,7 +23,7 @@ I built this for myself — a no-nonsense UI to generate images using my own API
 ## Models
 
 Currently supports:
-- **Nano Banana** (via OpenRouter)
+- **Nano Banana Pro** (Gemini 2.5 Pro via OpenRouter)
 - **GPT Image 1.5** (via OpenAI)
 - **Z-Image Turbo** (via Replicate) — fast, cheap generations
 

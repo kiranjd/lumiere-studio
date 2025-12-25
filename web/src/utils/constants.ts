@@ -3,8 +3,8 @@ import type { ModelConfig } from '../types';
 // Model configurations (matches original studio.html)
 export const MODELS: ModelConfig[] = [
   {
-    id: 'google/gemini-3-pro-image-preview',
-    name: 'Nano Banana',
+    id: 'google/gemini-2.5-pro-preview',
+    name: 'Nano Banana Pro',
     provider: 'openrouter',
     costPer: 0,
     supportsRefs: true,

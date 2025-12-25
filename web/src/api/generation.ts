@@ -9,7 +9,7 @@ const OAI_KEY = import.meta.env.VITE_OPENAI_API_KEY || '';
 
 // Models
 const MODELS = {
-  GEMINI_IMAGE: 'google/gemini-3-pro-image-preview',
+  GEMINI_IMAGE: 'google/gemini-2.5-pro-preview',
   GEMINI_ASSESS: 'google/gemini-3-flash-preview',
   GPT_IMAGE: 'gpt-image-1.5',
   Z_IMAGE_TURBO: 'prunaai/z-image-turbo',
