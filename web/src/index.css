@@ -1,0 +1,375 @@
+/* Google Fonts - must be first */
+@import url('https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;1,9..40,400&family=DM+Serif+Display&family=JetBrains+Mono:wght@400;500&display=swap');
+
+@import "tailwindcss";
+
+/* Lumière Studio - Cinematic Dark Theme */
+
+@theme {
+  /* Rich, deep blacks with warmth */
+  --color-void: #08080a;
+  --color-bg: #0c0c0e;
+  --color-bg-2: #121214;
+  --color-bg-3: #18181b;
+  --color-bg-4: #1f1f23;
+  --color-bg-elevated: #252529;
+
+  /* Borders with subtle warmth */
+  --color-border: #2a2a2f;
+  --color-border-2: #3a3a40;
+  --color-border-focus: #4a4a52;
+
+  /* Text hierarchy */
+  --color-text: #fafaf9;
+  --color-text-2: #a8a8a3;
+  --color-text-3: #6b6b66;
+  --color-text-muted: #52524d;
+
+  /* Warm gold accent - the signature */
+  --color-gold: #d4a853;
+  --color-gold-bright: #e8c068;
+  --color-gold-dim: rgba(212, 168, 83, 0.12);
+  --color-gold-glow: rgba(212, 168, 83, 0.25);
+
+  /* Status colors */
+  --color-ok: #4ade80;
+  --color-ok-dim: rgba(74, 222, 128, 0.12);
+  --color-err: #f87171;
+  --color-err-dim: rgba(248, 113, 113, 0.12);
+  --color-blue: #60a5fa;
+  --color-blue-dim: rgba(96, 165, 250, 0.12);
+  --color-purple: #a78bfa;
+  --color-purple-dim: rgba(167, 139, 250, 0.12);
+  --color-amber: #fbbf24;
+  --color-amber-dim: rgba(251, 191, 36, 0.12);
+
+  /* Typography */
+  --font-display: 'DM Serif Display', Georgia, serif;
+  --font-sans: 'DM Sans', system-ui, sans-serif;
+  --font-mono: 'JetBrains Mono', monospace;
+
+  /* Timing */
+  --ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-out-back: cubic-bezier(0.34, 1.56, 0.64, 1);
+
+  /* Shadows */
+  --shadow-glow: 0 0 30px rgba(212, 168, 83, 0.15);
+  --shadow-lg: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+  --shadow-card: 0 4px 20px rgba(0, 0, 0, 0.3);
+}
+
+/* Base styles */
+*, *::before, *::after {
+  box-sizing: border-box;
+}
+
+html {
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+}
+
+body {
+  margin: 0;
+  font-family: var(--font-sans);
+  background-color: var(--color-void);
+  color: var(--color-text);
+  line-height: 1.5;
+  overflow: hidden;
+}
+
+#root {
+  height: 100vh;
+  width: 100vw;
+}
+
+/* Film grain overlay */
+.grain {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 9999;
+  opacity: 0.03;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E");
+}
+
+/* Scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--color-border);
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--color-border-2);
+}
+
+/* Selection */
+::selection {
+  background: var(--color-gold-dim);
+  color: var(--color-gold-bright);
+}
+
+/* Focus styles */
+:focus-visible {
+  outline: 2px solid var(--color-gold);
+  outline-offset: 2px;
+}
+
+/* Image card shimmer loading effect */
+@keyframes shimmer {
+  0% { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
+}
+
+.shimmer {
+  background: linear-gradient(
+    90deg,
+    var(--color-bg-3) 0%,
+    var(--color-bg-4) 50%,
+    var(--color-bg-3) 100%
+  );
+  background-size: 200% 100%;
+  animation: shimmer 1.5s infinite;
+}
+
+/* Processing pulse */
+@keyframes pulse-ring {
+  0% { transform: scale(0.8); opacity: 0.8; }
+  50% { transform: scale(1); opacity: 0.4; }
+  100% { transform: scale(0.8); opacity: 0.8; }
+}
+
+.pulse-ring {
+  animation: pulse-ring 2s ease-in-out infinite;
+}
+
+/* Fade in animation */
+@keyframes fade-in {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes slide-up {
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes scale-in {
+  from {
+    opacity: 0;
+    transform: scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+@keyframes gradient-shift {
+  0% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+  100% {
+    background-position: 0% 50%;
+  }
+}
+
+.animate-in {
+  animation: fade-in 0.3s var(--ease-out-expo);
+}
+
+.animate-slide-up {
+  animation: slide-up 0.4s var(--ease-out-expo);
+}
+
+.animate-scale-in {
+  animation: scale-in 0.3s var(--ease-out-expo);
+}
+
+/* Stagger children animation delays */
+.stagger > * {
+  animation: slide-up 0.5s var(--ease-out-expo) backwards;
+}
+.stagger > *:nth-child(1) { animation-delay: 0ms; }
+.stagger > *:nth-child(2) { animation-delay: 30ms; }
+.stagger > *:nth-child(3) { animation-delay: 60ms; }
+.stagger > *:nth-child(4) { animation-delay: 90ms; }
+.stagger > *:nth-child(5) { animation-delay: 120ms; }
+.stagger > *:nth-child(6) { animation-delay: 150ms; }
+.stagger > *:nth-child(7) { animation-delay: 180ms; }
+.stagger > *:nth-child(8) { animation-delay: 210ms; }
+
+/* Glow effect for important elements */
+.glow-gold {
+  box-shadow: var(--shadow-glow);
+}
+
+/* Glass effect */
+.glass {
+  background: rgba(12, 12, 14, 0.85);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+}
+
+/* Image hover zoom */
+.img-zoom {
+  transition: transform 0.5s var(--ease-out-expo);
+}
+.img-zoom:hover {
+  transform: scale(1.03);
+}
+
+/* Responsive grid - left to right, top to bottom ordering */
+.masonry-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 12px; /* Increased for better touch spacing */
+}
+
+/* Very small phones: single column */
+@media (max-width: 374px) {
+  .masonry-grid {
+    grid-template-columns: 1fr;
+    gap: 16px;
+  }
+}
+
+/* Tablet: 3-4 columns */
+@media (min-width: 640px) {
+  .masonry-grid {
+    grid-template-columns: repeat(3, 1fr);
+    gap: 12px;
+  }
+}
+
+@media (min-width: 768px) {
+  .masonry-grid {
+    grid-template-columns: repeat(4, 1fr);
+    gap: 12px;
+  }
+}
+
+/* Desktop: auto columns based on min width */
+@media (min-width: 1024px) {
+  .masonry-grid {
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: 12px;
+  }
+}
+
+/* Large desktop: wider columns */
+@media (min-width: 1280px) {
+  .masonry-grid {
+    grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+    gap: 14px;
+  }
+}
+
+/* Hide scrollbar but allow scrolling (for filter bar) */
+.scrollbar-none {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+.scrollbar-none::-webkit-scrollbar {
+  display: none;
+}
+
+/* Touch-friendly scrolling */
+.touch-pan-x {
+  touch-action: pan-x;
+  -webkit-overflow-scrolling: touch;
+}
+
+/* ==========================================
+   iOS Safe Area & Responsive Utilities
+   ========================================== */
+
+/* Safe area insets for notch/home indicator */
+.safe-top {
+  padding-top: env(safe-area-inset-top, 0);
+}
+.safe-bottom {
+  padding-bottom: env(safe-area-inset-bottom, 0);
+}
+.safe-left {
+  padding-left: env(safe-area-inset-left, 0);
+}
+.safe-right {
+  padding-right: env(safe-area-inset-right, 0);
+}
+.safe-x {
+  padding-left: env(safe-area-inset-left, 0);
+  padding-right: env(safe-area-inset-right, 0);
+}
+.safe-y {
+  padding-top: env(safe-area-inset-top, 0);
+  padding-bottom: env(safe-area-inset-bottom, 0);
+}
+
+/* Touch target minimum (WCAG 2.5.5) */
+.touch-target {
+  min-height: 44px;
+  min-width: 44px;
+}
+
+/* Active state feedback for touch */
+.touch-feedback {
+  transition: transform 0.1s ease-out, opacity 0.1s ease-out;
+}
+.touch-feedback:active {
+  transform: scale(0.97);
+  opacity: 0.8;
+}
+
+/* Prevent text selection on touch interactions */
+.no-select {
+  -webkit-user-select: none;
+  user-select: none;
+  -webkit-touch-callout: none;
+}
+
+/* Responsive visibility utilities */
+.mobile-only {
+  display: block;
+}
+@media (min-width: 768px) {
+  .mobile-only {
+    display: none;
+  }
+}
+
+.tablet-up {
+  display: none;
+}
+@media (min-width: 768px) {
+  .tablet-up {
+    display: block;
+  }
+}
+
+.desktop-only {
+  display: none;
+}
+@media (min-width: 1024px) {
+  .desktop-only {
+    display: block;
+  }
+}
