@@ -25,9 +25,10 @@ I built this for myself — a no-nonsense UI to generate images using my own API
 Currently supports:
 - **Gemini 3 Pro** (via OpenRouter)
 - **GPT Image 1.5** (via OpenAI)
+- **Z-Image Turbo** (via Replicate) — fast, cheap generations
 
 Want more? The architecture supports adding providers easily. Open an issue or PR if you'd like to see:
-- Replicate models
+- More Replicate models
 - Stability AI
 - Ideogram
 - Other OpenRouter models

@@ -18,6 +18,14 @@ export const MODELS: ModelConfig[] = [
     supportsRefs: true,
     maxRefs: 4,
   },
+  {
+    id: 'prunaai/z-image-turbo',
+    name: 'Z-Image Turbo',
+    provider: 'replicate',
+    costPer: 0.003,
+    supportsRefs: false,
+    maxRefs: 0,
+  },
 ];
 
 // Batch colors

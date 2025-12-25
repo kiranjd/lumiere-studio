@@ -12,6 +12,7 @@ const MODELS = {
   GEMINI_IMAGE: 'google/gemini-3-pro-image-preview',
   GEMINI_ASSESS: 'google/gemini-3-flash-preview',
   GPT_IMAGE: 'gpt-image-1.5',
+  Z_IMAGE_TURBO: 'prunaai/z-image-turbo',
 };
 
 // Size mappings for OpenAI
@@ -49,6 +50,22 @@ function logFailedResponse(context: string, response: any) {
     // Ignore storage errors
   }
 }
+
+// Size mappings for Replicate
+const REPLICATE_SIZES: Record<string, { width: number; height: number }> = {
+  '1:1': { width: 768, height: 768 },
+  '16:9': { width: 1024, height: 576 },
+  '9:16': { width: 576, height: 1024 },
+  '4:3': { width: 896, height: 672 },
+  '3:4': { width: 672, height: 896 },
+};
+
+// Quality to inference steps mapping for Z-Image Turbo
+const REPLICATE_STEPS: Record<string, number> = {
+  low: 4,
+  medium: 8,
+  high: 16,
+};
 
 // Quality settings for each model type
 const QUALITY_CONFIG = {
@@ -248,9 +265,53 @@ export async function generateWithOpenAI(params: {
   return imageUrl;
 }
 
+// Generate with Replicate (Z-Image Turbo) via backend proxy
+export async function generateWithReplicate(params: {
+  prompt: string;
+  aspect: string;
+  quality: 'low' | 'medium' | 'high';
+}): Promise<string> {
+  const size = REPLICATE_SIZES[params.aspect] || REPLICATE_SIZES['1:1'];
+  const steps = REPLICATE_STEPS[params.quality] || 8;
+
+  const requestBody = {
+    prompt: params.prompt,
+    width: size.width,
+    height: size.height,
+    num_inference_steps: steps,
+  };
+
+  console.log('[Replicate] Request:', requestBody);
+
+  const res = await fetch('http://localhost:8000/api/replicate/z-image-turbo', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify(requestBody),
+  });
+
+  const data = await res.json();
+  console.log('[Replicate] Response:', data);
+
+  if (!res.ok) {
+    logFailedResponse('Replicate API Error', { request: requestBody, response: data });
+    throw new Error(data.detail || 'Replicate API error');
+  }
+
+  const imageUrl = Array.isArray(data.output) ? data.output[0] : data.output;
+  if (!imageUrl || typeof imageUrl !== 'string') {
+    logFailedResponse('Replicate No Image', { request: requestBody, response: data });
+    throw new Error('No image in response');
+  }
+
+  return imageUrl;
+}
+
 // Process a single queue item
 export async function processQueueItem(item: QueueItem): Promise<string> {
   const isOpenAI = item.model === MODELS.GPT_IMAGE;
+  const isReplicate = item.model === MODELS.Z_IMAGE_TURBO;
   const quality = item.quality || 'medium';
 
   if (isOpenAI) {
@@ -259,6 +320,14 @@ export async function processQueueItem(item: QueueItem): Promise<string> {
       refs: item.refs,
       quality: QUALITY_CONFIG[quality].openai,
       aspect: item.aspect,
+    });
+  }
+
+  if (isReplicate) {
+    return generateWithReplicate({
+      prompt: item.prompt,
+      aspect: item.aspect,
+      quality,
     });
   }
 
