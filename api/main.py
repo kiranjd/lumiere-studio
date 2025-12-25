@@ -31,9 +31,9 @@ logging.basicConfig(
 )
 logger = logging.getLogger(__name__)
 
-# Paths
+# Paths - BETA_DIR can be overridden via env variable
 BASE_DIR = Path(__file__).parent.parent
-BETA_DIR = BASE_DIR / "beta"
+BETA_DIR = Path(os.environ.get("BETA_DIR", str(BASE_DIR / "beta")))
 TO_BE_PROCESSED_DIR = BETA_DIR / "to-be-processed"
 GENERATED_DIR = BETA_DIR / "generated"
 SPECIFIC_DIR = BETA_DIR / "specific"

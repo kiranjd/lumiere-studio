@@ -1,8 +1,8 @@
 import { useEffect, useMemo, useState, useCallback } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion } from 'framer-motion';
 import { useStore } from '../../stores/store';
 import { ImageCard } from '../cards/ImageCard';
-import { fetchLibrary, updateImageTag } from '../../api/server';
+import { fetchLibrary } from '../../api/server';
 import { cn } from '../../utils/cn';
 
 export function LibraryView() {
@@ -10,8 +10,6 @@ export function LibraryView() {
   const setLibrary = useStore((s) => s.setLibrary);
   const libraryLoading = useStore((s) => s.libraryLoading);
   const setLibraryLoading = useStore((s) => s.setLibraryLoading);
-  const libraryFilter = useStore((s) => s.libraryFilter);
-  const setLibraryFilter = useStore((s) => s.setLibraryFilter);
   const openLightbox = useStore((s) => s.openLightbox);
   const selectedRefs = useStore((s) => s.selectedRefs);
   const toggleRef = useStore((s) => s.toggleRef);
@@ -38,71 +36,10 @@ export function LibraryView() {
     load();
   }, []);
 
-  // Define tag groups for organization
-  const TAG_GROUPS: Record<string, string[]> = {
-    'Type': ['generated', 'reference', 'specific', 'expression', 'grid', 'expressions', 'library', 'ipad'],
-    'Outfit': ['outfit', 'casual', 'dress', 'formal', 'saree'],
-    'Style': ['artistic', 'candid', 'phone', 'mirror', 'selfie', 'portrait', 'intimate'],
-    'Model': ['gpt', 'gemini', 'misc'],
-  };
-
-  // Get unique tags from library, grouped
-  const groupedTags = useMemo(() => {
-    const tagCounts = new Map<string, number>();
-    library.forEach((img) => img.tags?.forEach((t) => {
-      tagCounts.set(t, (tagCounts.get(t) || 0) + 1);
-    }));
-
-    const groups: Record<string, Array<{ tag: string; count: number }>> = {};
-    const expressionTags: Array<{ tag: string; count: number }> = [];
-    const ungrouped: Array<{ tag: string; count: number }> = [];
-
-    // Known expression tags
-    const EXPRESSIONS = new Set([
-      'happy', 'sad', 'angry', 'neutral', 'disgusted', 'shocked', 'confused',
-      'content', 'laughing', 'pleasant', 'pouting', 'smiling', 'surprised',
-      'thinking', 'upset', 'winking', 'worried'
-    ]);
-
-    tagCounts.forEach((count, tag) => {
-      // Check if it's an expression
-      if (EXPRESSIONS.has(tag)) {
-        expressionTags.push({ tag, count });
-        return;
-      }
-
-      // Check which group it belongs to
-      let found = false;
-      for (const [group, tags] of Object.entries(TAG_GROUPS)) {
-        if (tags.includes(tag)) {
-          if (!groups[group]) groups[group] = [];
-          groups[group].push({ tag, count });
-          found = true;
-          break;
-        }
-      }
-
-      if (!found) {
-        ungrouped.push({ tag, count });
-      }
-    });
-
-    // Sort each group alphabetically
-    Object.values(groups).forEach((g) => g.sort((a, b) => a.tag.localeCompare(b.tag)));
-    expressionTags.sort((a, b) => a.tag.localeCompare(b.tag));
-    ungrouped.sort((a, b) => a.tag.localeCompare(b.tag));
-
-    return { groups, expressionTags, ungrouped };
-  }, [library]);
-
-  // Filter and sort library (newest first based on filename patterns)
-  const filteredLibrary = useMemo(() => {
-    let filtered = libraryFilter
-      ? library.filter((img) => img.tags?.includes(libraryFilter))
-      : library;
-
+  // Sort library (newest first based on filename patterns)
+  const sortedLibrary = useMemo(() => {
     // Sort newest first: IMG_ files by number, dated files by date, others alphabetically
-    return [...filtered].sort((a, b) => {
+    return [...library].sort((a, b) => {
       const aFile = a.file;
       const bFile = b.file;
 
@@ -131,16 +68,16 @@ export function LibraryView() {
       // Everything else alphabetically
       return aFile.localeCompare(bFile);
     });
-  }, [library, libraryFilter]);
+  }, [library]);
 
   const handleOpenLightbox = useCallback((index: number) => {
-    const images = filteredLibrary.map((img) => ({
+    const images = sortedLibrary.map((img) => ({
       file: img.file,
       prompt: img.prompt,
       model: img.model,
     }));
     openLightbox(images, index, 'library');
-  }, [filteredLibrary, openLightbox]);
+  }, [sortedLibrary, openLightbox]);
 
   // Keyboard navigation: arrows to move, Space to toggle ref, Enter to open
   useEffect(() => {
@@ -151,7 +88,7 @@ export function LibraryView() {
       // Ignore if typing in an input
       if (e.target instanceof HTMLInputElement || e.target instanceof HTMLTextAreaElement) return;
 
-      const len = filteredLibrary.length;
+      const len = sortedLibrary.length;
       if (len === 0) return;
 
       switch (e.key) {
@@ -179,7 +116,7 @@ export function LibraryView() {
         case ' ':
           e.preventDefault();
           if (focusedIndex >= 0 && focusedIndex < len) {
-            toggleRef(filteredLibrary[focusedIndex].file);
+            toggleRef(sortedLibrary[focusedIndex].file);
           }
           break;
         case 'Enter':
@@ -196,7 +133,7 @@ export function LibraryView() {
 
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [filteredLibrary, focusedIndex, lightbox.isOpen, toggleRef, handleOpenLightbox]);
+  }, [sortedLibrary, focusedIndex, lightbox.isOpen, toggleRef, handleOpenLightbox]);
 
   // Scroll focused item into view
   useEffect(() => {
@@ -246,20 +183,6 @@ export function LibraryView() {
 
   return (
     <div className="flex-1 flex flex-col overflow-hidden">
-      {/* Filter bar - simplified */}
-      {library.length > 0 && (
-        <FilterBar
-          library={library}
-          libraryFilter={libraryFilter}
-          setLibraryFilter={setLibraryFilter}
-          groupedTags={groupedTags}
-          onRefreshLibrary={async () => {
-            const images = await fetchLibrary();
-            setLibrary(images);
-          }}
-        />
-      )}
-
       {/* Selected refs indicator */}
       {selectedRefs.length > 0 && (
         <div className="px-6 py-2 bg-gold-dim border-b border-gold/20 flex items-center justify-between">
@@ -279,7 +202,7 @@ export function LibraryView() {
       {/* Image grid - responsive CSS columns masonry */}
       <div className="flex-1 overflow-y-auto p-3 sm:p-4 md:p-6 pb-32">
         <div className="masonry-grid">
-          {filteredLibrary.map((img, index) => (
+          {sortedLibrary.map((img, index) => (
             <div
               key={img.file}
               data-library-index={index}
@@ -310,253 +233,6 @@ export function LibraryView() {
           ))}
         </div>
       </div>
-    </div>
-  );
-}
-
-// Simplified filter bar component
-function FilterBar({
-  library,
-  libraryFilter,
-  setLibraryFilter,
-  groupedTags,
-  onRefreshLibrary,
-}: {
-  library: any[];
-  libraryFilter: string;
-  setLibraryFilter: (filter: string) => void;
-  groupedTags: {
-    groups: Record<string, Array<{ tag: string; count: number }>>;
-    expressionTags: Array<{ tag: string; count: number }>;
-    ungrouped: Array<{ tag: string; count: number }>;
-  };
-  onRefreshLibrary: () => void;
-}) {
-  const [activeDropdown, setActiveDropdown] = useState<string | null>(null);
-  const [dragOverTag, setDragOverTag] = useState<string | null>(null);
-  const addToast = useStore((s) => s.addToast);
-
-  // Primary filters (most used)
-  const primaryFilters = [
-    { tag: 'reference', label: 'References' },
-    { tag: 'generated', label: 'Generated' },
-    { tag: 'ipad', label: 'iPad' },
-    { tag: 'specific', label: 'Expressions' },
-  ];
-
-  // Get count for a tag
-  const getCount = (tag: string) => {
-    return library.filter((img) => img.tags?.includes(tag)).length;
-  };
-
-  // Drag handlers for tag buttons
-  const handleDragOver = (e: React.DragEvent, tag: string) => {
-    e.preventDefault();
-    e.dataTransfer.dropEffect = 'copy';
-    setDragOverTag(tag);
-  };
-
-  const handleDragLeave = () => {
-    setDragOverTag(null);
-  };
-
-  const handleDrop = async (e: React.DragEvent, tag: string) => {
-    e.preventDefault();
-    setDragOverTag(null);
-    const data = e.dataTransfer.getData('text/plain');
-    if (data) {
-      // Try to parse as JSON array, fallback to single file
-      let files: string[];
-      try {
-        const parsed = JSON.parse(data);
-        files = Array.isArray(parsed) ? parsed : [data];
-      } catch {
-        files = [data];
-      }
-
-      try {
-        await Promise.all(files.map(file => updateImageTag(file, tag, 'add')));
-        addToast({
-          message: files.length > 1 ? `Tagged ${files.length} images as "${tag}"` : `Tagged as "${tag}"`,
-          type: 'success'
-        });
-        onRefreshLibrary();
-      } catch (error) {
-        addToast({ message: 'Failed to add tag', type: 'error' });
-      }
-    }
-  };
-
-  return (
-    <div className="px-3 sm:px-4 md:px-6 py-2 sm:py-3 border-b border-border
-                    flex items-center gap-1.5 sm:gap-2 overflow-x-auto
-                    scrollbar-none touch-pan-x">
-      {/* All button */}
-      <button
-        onClick={() => setLibraryFilter('')}
-        className={cn(
-          'px-2.5 sm:px-3 py-1.5 rounded-lg text-xs sm:text-sm font-medium transition-all shrink-0',
-          'min-h-[36px] sm:min-h-[auto]', // Touch-friendly height on mobile
-          !libraryFilter
-            ? 'bg-gold text-void'
-            : 'bg-bg-3 text-text-2 hover:bg-bg-4 active:bg-bg-4'
-        )}
-      >
-        All ({library.length})
-      </button>
-
-      <div className="w-px h-5 bg-border shrink-0" />
-
-      {/* Primary quick filters - droppable */}
-      {primaryFilters.map(({ tag, label }) => {
-        const count = getCount(tag);
-        if (count === 0) return null;
-        return (
-          <button
-            key={tag}
-            onClick={() => setLibraryFilter(tag === libraryFilter ? '' : tag)}
-            onDragOver={(e) => handleDragOver(e, tag)}
-            onDragLeave={handleDragLeave}
-            onDrop={(e) => handleDrop(e, tag)}
-            className={cn(
-              'px-2.5 sm:px-3 py-1.5 rounded-lg text-xs sm:text-sm font-medium transition-all shrink-0',
-              'min-h-[36px] sm:min-h-[auto]',
-              tag === libraryFilter
-                ? 'bg-gold text-void'
-                : 'bg-bg-3 text-text-2 hover:bg-bg-4 active:bg-bg-4',
-              dragOverTag === tag && 'ring-2 ring-gold bg-gold/20 scale-105'
-            )}
-          >
-            {label} ({count})
-          </button>
-        );
-      })}
-
-      <div className="w-px h-5 bg-border shrink-0 hidden sm:block" />
-
-      {/* Category dropdowns - hidden on mobile */}
-      {Object.entries(groupedTags.groups).map(([groupName, tags]) => {
-        if (tags.length === 0) return null;
-        const isOpen = activeDropdown === groupName;
-        const hasActiveFilter = tags.some((t) => t.tag === libraryFilter);
-
-        return (
-          <div key={groupName} className="relative hidden sm:block">
-            <button
-              onClick={() => setActiveDropdown(isOpen ? null : groupName)}
-              className={cn(
-                'px-3 py-1.5 rounded-lg text-sm font-medium transition-all flex items-center gap-1.5',
-                hasActiveFilter
-                  ? 'bg-gold text-void'
-                  : 'bg-bg-3 text-text-2 hover:bg-bg-4'
-              )}
-            >
-              {groupName}
-              {hasActiveFilter && `: ${libraryFilter}`}
-              <svg className={cn('w-3 h-3 transition-transform', isOpen && 'rotate-180')} fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-              </svg>
-            </button>
-
-            <AnimatePresence>
-              {isOpen && (
-                <motion.div
-                  initial={{ opacity: 0, y: -5 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  exit={{ opacity: 0, y: -5 }}
-                  className="absolute top-full left-0 mt-1 z-50 min-w-[140px]
-                           bg-bg-3 border border-border rounded-lg shadow-xl overflow-hidden"
-                >
-                  {tags.map(({ tag, count }) => (
-                    <button
-                      key={tag}
-                      onClick={() => {
-                        setLibraryFilter(tag === libraryFilter ? '' : tag);
-                        setActiveDropdown(null);
-                      }}
-                      className={cn(
-                        'w-full px-3 py-2 text-left text-sm flex items-center justify-between gap-3',
-                        'transition-colors',
-                        tag === libraryFilter
-                          ? 'bg-gold text-void'
-                          : 'text-text-2 hover:bg-bg-4'
-                      )}
-                    >
-                      <span className="capitalize">{tag}</span>
-                      <span className="text-xs opacity-60">{count}</span>
-                    </button>
-                  ))}
-                </motion.div>
-              )}
-            </AnimatePresence>
-          </div>
-        );
-      })}
-
-      {/* Expression dropdown - hidden on mobile */}
-      {groupedTags.expressionTags.length > 0 && (
-        <div className="relative hidden sm:block">
-          <button
-            onClick={() => setActiveDropdown(activeDropdown === 'expressions' ? null : 'expressions')}
-            className={cn(
-              'px-3 py-1.5 rounded-lg text-sm font-medium transition-all flex items-center gap-1.5',
-              groupedTags.expressionTags.some((t) => t.tag === libraryFilter)
-                ? 'bg-purple text-void'
-                : 'bg-bg-3 text-text-2 hover:bg-bg-4'
-            )}
-          >
-            Mood
-            {groupedTags.expressionTags.some((t) => t.tag === libraryFilter) && `: ${libraryFilter}`}
-            <svg className={cn('w-3 h-3 transition-transform', activeDropdown === 'expressions' && 'rotate-180')} fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-            </svg>
-          </button>
-
-          <AnimatePresence>
-            {activeDropdown === 'expressions' && (
-              <motion.div
-                initial={{ opacity: 0, y: -5 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: -5 }}
-                className="absolute top-full left-0 mt-1 z-50 min-w-[140px] max-h-[300px] overflow-y-auto
-                         bg-bg-3 border border-border rounded-lg shadow-xl"
-              >
-                {groupedTags.expressionTags.map(({ tag }) => (
-                  <button
-                    key={tag}
-                    onClick={() => {
-                      setLibraryFilter(tag === libraryFilter ? '' : tag);
-                      setActiveDropdown(null);
-                    }}
-                    className={cn(
-                      'w-full px-3 py-2 text-left text-sm',
-                      'transition-colors capitalize',
-                      tag === libraryFilter
-                        ? 'bg-purple text-void'
-                        : 'text-text-2 hover:bg-bg-4'
-                    )}
-                  >
-                    {tag}
-                  </button>
-                ))}
-              </motion.div>
-            )}
-          </AnimatePresence>
-        </div>
-      )}
-
-      {/* Clear filter if active */}
-      {libraryFilter && (
-        <button
-          onClick={() => setLibraryFilter('')}
-          className="ml-auto p-1.5 rounded hover:bg-bg-3 text-text-3 hover:text-text transition-colors"
-          title="Clear filter"
-        >
-          <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-          </svg>
-        </button>
-      )}
     </div>
   );
 }

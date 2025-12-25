@@ -11,7 +11,7 @@ import type {
   Toast,
   PromptTemplate,
 } from '../types';
-import { BATCH_COLORS } from '../utils/constants';
+import { BATCH_COLORS, MODELS } from '../utils/constants';
 import { syncBatches, saveBatches, fetchBatches, fetchIncognitoImages, saveIncognitoImages } from '../api/server';
 
 interface StudioStore {
@@ -198,7 +198,7 @@ export const useStore = create<StudioStore>()(
       setGeneratedLoading: (loading) => set({ generatedLoading: loading }),
 
       // Selected models
-      selectedModels: ['google/gemini-3-pro-image-preview'],
+      selectedModels: ['google/gemini-2.5-pro-preview'],
       toggleModel: (modelId) =>
         set((state) => {
           const models = state.selectedModels;
@@ -479,6 +479,15 @@ export const useStore = create<StudioStore>()(
         if (state && !hasSyncedThisSession) {
           hasSyncedThisSession = true;
           console.log('Zustand rehydrated, syncing...');
+
+          // Migrate: clean up stale model IDs that no longer exist
+          const validModelIds = new Set(MODELS.map(m => m.id));
+          const cleanedModels = state.selectedModels.filter(id => validModelIds.has(id));
+          if (cleanedModels.length !== state.selectedModels.length) {
+            console.log('Migrating stale model IDs:', state.selectedModels, '->', cleanedModels);
+            state.setSelectedModels(cleanedModels.length > 0 ? cleanedModels : [MODELS[0].id]);
+          }
+
           state.initBatchSync();
           state.initIncognitoSync();
         }

@@ -162,10 +162,11 @@ export function Sidebar() {
     return <ToggleButton />;
   }
 
-  // Sidebar content
-  const SidebarContent = () => (
+  // Sidebar content - using a stable key to prevent remounting on parent re-renders
+  const sidebarContent = (
     <motion.aside
-      initial={{ x: -280 }}
+      key="sidebar-content"
+      initial={false}
       animate={{ x: 0 }}
       exit={{ x: -280 }}
       transition={{ type: 'spring', stiffness: 300, damping: 30 }}
@@ -376,7 +377,7 @@ export function Sidebar() {
               />
               {/* Drawer */}
               <div className="fixed inset-y-0 left-0 z-50">
-                <SidebarContent />
+                {sidebarContent}
               </div>
             </>
           )}
@@ -385,7 +386,7 @@ export function Sidebar() {
 
       {/* Desktop: Inline sidebar */}
       <div className="hidden lg:block">
-        <SidebarContent />
+        {sidebarContent}
       </div>
     </>
   );

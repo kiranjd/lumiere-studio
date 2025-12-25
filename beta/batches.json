@@ -1,0 +1,130 @@
+[
+  {
+    "id": "batch-1766000694649",
+    "name": "looks pretty",
+    "color": "#d4a853",
+    "images": [
+      {
+        "file": "to-be-processed/20251218_011319_gemini_projectspecifications.png",
+        "addedAt": 1766000718742
+      },
+      {
+        "file": "to-be-processed/20251218_005014_gemini_projectspecifications.png",
+        "addedAt": 1766000731958
+      },
+      {
+        "file": "specific/06-winking.png",
+        "addedAt": 1766001019432
+      },
+      {
+        "file": "to-be-processed/20251218_011319_gemini_projectspecifications_1.png",
+        "addedAt": 1766679087505
+      },
+      {
+        "file": "to-be-processed/20251218_011319_gemini_projectspecifications_2.png",
+        "addedAt": 1766679087519
+      },
+      {
+        "file": "to-be-processed/20251218_011319_gemini_projectspecifications_3.png",
+        "addedAt": 1766679087531
+      },
+      {
+        "file": "to-be-processed/20251218_011319_gemini_projectspecifications_4.png",
+        "addedAt": 1766679087549
+      }
+    ],
+    "createdAt": 1766000694649
+  },
+  {
+    "id": "batch-1766001385761",
+    "name": "slide-show",
+    "color": "#4ade80",
+    "images": [
+      {
+        "file": "to-be-processed/20251217_173117_gemini_pov-phone-photo-from-someone-l.png",
+        "addedAt": 1766002790338
+      },
+      {
+        "file": "to-be-processed/20251217_173329_47_process.png",
+        "addedAt": 1766002795131
+      },
+      {
+        "file": "to-be-processed/20251217_184609_gemini_phone-photo-of-a-hand-holding.png",
+        "addedAt": 1766002815517
+      },
+      {
+        "file": "to-be-processed/20251218_134156_gemini_medium-shot-of-a-tall-athletic.png",
+        "addedAt": 1766045622428
+      },
+      {
+        "file": "to-be-processed/20251218_163626_edited_edited.png",
+        "addedAt": 1766055986384
+      },
+      {
+        "file": "to-be-processed/20251218_172444_gemini_fill-the-imag-ein-green-part.png",
+        "addedAt": 1766058974186
+      }
+    ],
+    "createdAt": 1766001385761
+  },
+  {
+    "id": "batch-1766002731337",
+    "name": "too real",
+    "color": "#f87171",
+    "images": [
+      {
+        "file": "to-be-processed/20251218_014433_gemini_the-jewelry-specifically-the-r.png",
+        "addedAt": 1766002738551
+      },
+      {
+        "file": "to-be-processed/20251218_134156_gemini_medium-shot-of-a-tall-athletic.png",
+        "addedAt": 1766045616333
+      },
+      {
+        "file": "to-be-processed/20251218_134501_gemini_full-body-shot-from-behind-of.png",
+        "addedAt": 1766046079482
+      },
+      {
+        "file": "to-be-processed/20251218_135913_edited_edited.png",
+        "addedAt": 1766046553684
+      },
+      {
+        "file": "to-be-processed/20251218_140213_edited_edited.png",
+        "addedAt": 1766046733858
+      },
+      {
+        "file": "to-be-processed/20251218_140435_gemini_genrative-fill-the-green-part.png",
+        "addedAt": 1766046893289
+      },
+      {
+        "file": "to-be-processed/20251218_135149_edited_edited.png",
+        "addedAt": 1766046900731
+      }
+    ],
+    "createdAt": 1766002731337
+  },
+  {
+    "id": "batch-1766047050860",
+    "name": "good-refs",
+    "color": "#f87171",
+    "images": [
+      {
+        "file": "outfit-casual-01-beige-tshirt-jeans.png",
+        "addedAt": 1766047056977
+      },
+      {
+        "file": "outfit-casual-02-white-tank-gray-pants.png",
+        "addedAt": 1766047062240
+      },
+      {
+        "file": "specific/04-neutral.png",
+        "addedAt": 1766047093123
+      },
+      {
+        "file": "to-be-processed/20251219_211846_gemini_close-portrait-of-a-tall-india.png",
+        "addedAt": 1766172412394
+      }
+    ],
+    "createdAt": 1766047050860
+  }
+]
