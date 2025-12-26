@@ -198,7 +198,7 @@ export const useStore = create<StudioStore>()(
       setGeneratedLoading: (loading) => set({ generatedLoading: loading }),
 
       // Selected models
-      selectedModels: ['google/gemini-2.5-pro-preview'],
+      selectedModels: ['google/gemini-3-pro-image-preview'],
       toggleModel: (modelId) =>
         set((state) => {
           const models = state.selectedModels;

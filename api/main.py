@@ -229,6 +229,13 @@ async def save_image(request: SaveImageRequest):
         filename = f"{timestamp}_{model_short}_{clean_prompt}.png"
         filepath = TO_BE_PROCESSED_DIR / filename
 
+        # Handle filename collisions (important for parallel generations)
+        counter = 1
+        while filepath.exists():
+            filename = f"{timestamp}_{model_short}_{clean_prompt}_{counter}.png"
+            filepath = TO_BE_PROCESSED_DIR / filename
+            counter += 1
+
         # Handle base64 data URL or raw base64
         image_data = request.image
         if image_data.startswith('data:'):

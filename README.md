@@ -25,7 +25,7 @@ https://github.com/user-attachments/assets/bfd3c231-2e40-46db-996d-834f0bb7a93f
 ## Models
 
 Currently supports:
-- **Nano Banana Pro** (Gemini 2.5 Pro via OpenRouter)
+- **Nano Banana Pro** (Gemini 3 Pro via OpenRouter)
 - **GPT Image 1.5** (via OpenAI)
 - **Z-Image Turbo** (via Replicate) — fast, cheap generations
 
