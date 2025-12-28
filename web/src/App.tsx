@@ -12,6 +12,7 @@ import { ToastContainer } from './components/ui/Toast';
 import { CompareBar } from './components/ui/CompareBar';
 import { DragLayer } from './components/ui/DragLayer';
 import { SelectionActionBar } from './components/ui/SelectionActionBar';
+import { SettingsModal } from './components/ui/SettingsModal';
 import { useStore } from './stores/store';
 import { fetchLibrary, fetchGeneratedImages } from './api/server';
 
@@ -77,6 +78,9 @@ function App() {
 
       {/* Selection action bar - appears when multiple images selected */}
       <SelectionActionBar />
+
+      {/* Settings modal */}
+      <SettingsModal />
     </div>
   );
 }

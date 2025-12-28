@@ -2,10 +2,17 @@
 
 import { getImageUrl, imageToBase64, saveImage } from './server';
 import type { QueueItem } from '../types';
+import { useStore } from '../stores/store';
 
-// API Keys from environment
-const OR_KEY = import.meta.env.VITE_OPENROUTER_API_KEY || '';
-const OAI_KEY = import.meta.env.VITE_OPENAI_API_KEY || '';
+// Get API keys - prefer store (user-provided) over env vars (defaults)
+function getApiKeys() {
+  const state = useStore.getState();
+  return {
+    openrouter: state.apiKeys.openrouter || import.meta.env.VITE_OPENROUTER_API_KEY || '',
+    openai: state.apiKeys.openai || import.meta.env.VITE_OPENAI_API_KEY || '',
+    replicate: state.apiKeys.replicate || import.meta.env.VITE_REPLICATE_API_TOKEN || '',
+  };
+}
 
 // Models
 const MODELS = {
@@ -120,7 +127,7 @@ export async function generateWithOpenRouter(params: {
   const res = await fetch('https://openrouter.ai/api/v1/chat/completions', {
     method: 'POST',
     headers: {
-      'Authorization': `Bearer ${OR_KEY}`,
+      'Authorization': `Bearer ${getApiKeys().openrouter}`,
       'Content-Type': 'application/json',
     },
     body: JSON.stringify(requestBody),
@@ -209,7 +216,7 @@ export async function generateWithOpenAI(params: {
 
     const res = await fetch('https://api.openai.com/v1/images/edits', {
       method: 'POST',
-      headers: { 'Authorization': `Bearer ${OAI_KEY}` },
+      headers: { 'Authorization': `Bearer ${getApiKeys().openai}` },
       body: fd,
     });
 
@@ -243,7 +250,7 @@ export async function generateWithOpenAI(params: {
   const res = await fetch('https://api.openai.com/v1/images/generations', {
     method: 'POST',
     headers: {
-      'Authorization': `Bearer ${OAI_KEY}`,
+      'Authorization': `Bearer ${getApiKeys().openai}`,
       'Content-Type': 'application/json',
     },
     body: JSON.stringify(requestBody),

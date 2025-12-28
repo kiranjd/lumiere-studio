@@ -38,6 +38,7 @@ export function GeneratorIsland() {
   const [isExpanded, setIsExpanded] = useState(false);
   const [showHistory, setShowHistory] = useState(false);
   const [isDragOver, setIsDragOver] = useState(false);
+  const [isPasting, setIsPasting] = useState(false);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
 
   // Handle drag and drop for references
@@ -85,6 +86,50 @@ export function GeneratorIsland() {
           type: 'success'
         });
       }
+    }
+  };
+
+  // Handle paste for images
+  const handlePaste = async (e: React.ClipboardEvent) => {
+    const items = e.clipboardData?.items;
+    if (!items) return;
+
+    // Find image item (convert to array for safer iteration)
+    const imageItem = Array.from(items).find(item => item.type.startsWith('image/'));
+    if (!imageItem) return;
+
+    e.preventDefault();
+
+    if (selectedRefs.length >= 4) {
+      addToast({ message: 'Maximum 4 references allowed', type: 'error' });
+      return;
+    }
+
+    const blob = imageItem.getAsFile();
+    if (!blob) {
+      console.error('[Paste] Failed to get file from clipboard item');
+      addToast({ message: 'Failed to paste image', type: 'error' });
+      return;
+    }
+
+    setIsPasting(true);
+    try {
+      // Convert to data URL
+      const dataUrl = await new Promise<string>((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onload = () => resolve(reader.result as string);
+        reader.onerror = () => reject(new Error('FileReader failed'));
+        reader.readAsDataURL(blob);
+      });
+
+      // Add as reference (data URLs work with getImageUrl)
+      toggleRef(dataUrl);
+      addToast({ message: 'Pasted as reference', type: 'success' });
+    } catch (err) {
+      console.error('[Paste] Error:', err);
+      addToast({ message: 'Failed to paste image', type: 'error' });
+    } finally {
+      setIsPasting(false);
     }
   };
 
@@ -314,7 +359,8 @@ export function GeneratorIsland() {
               onChange={(e) => setPrompt(e.target.value)}
               onFocus={() => setIsExpanded(true)}
               onClick={() => setIsExpanded(true)}
-              placeholder="Describe your image..."
+              onPaste={handlePaste}
+              placeholder={isPasting ? 'Pasting image...' : 'Describe your image...'}
               rows={1}
               className="w-full bg-transparent text-text placeholder-text-3 resize-none text-sm leading-normal
                        !border-0 !outline-none !ring-0 !shadow-none focus:!border-0 focus:!outline-none focus:!ring-0 focus-visible:!outline-none"

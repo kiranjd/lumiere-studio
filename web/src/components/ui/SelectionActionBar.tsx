@@ -30,7 +30,7 @@ export function SelectionActionBar() {
   const setRefs = useStore((s) => s.setRefs);
   const addToast = useStore((s) => s.addToast);
   const setLibrary = useStore((s) => s.setLibrary);
-  const library = useStore((s) => s.library);
+  const setGeneratedImages = useStore((s) => s.setGeneratedImages);
 
   const count = selectedFiles.length;
 
@@ -47,8 +47,11 @@ export function SelectionActionBar() {
     setIsDeleting(true);
     try {
       await Promise.all(selectedFiles.map((file) => deleteImage(file)));
-      // Remove from library
-      setLibrary(library.filter((img) => !selectedFiles.includes(img.file)));
+      // Get fresh state and remove from both collections
+      const state = useStore.getState();
+      const deletedSet = new Set(selectedFiles);
+      setLibrary(state.library.filter((img) => !deletedSet.has(img.file)));
+      setGeneratedImages(state.generatedImages.filter((img) => !deletedSet.has(img.file)));
       addToast({ message: `Deleted ${count} images`, type: 'success' });
       clearDragSelect();
     } catch (error) {

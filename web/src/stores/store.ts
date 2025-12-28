@@ -126,6 +126,16 @@ interface StudioStore {
   batchSyncError: string | null;
   initBatchSync: () => Promise<void>;
   _saveBatchesToServer: () => void;
+
+  // API Keys (stored locally in browser)
+  apiKeys: {
+    openrouter: string;
+    openai: string;
+    replicate: string;
+  };
+  setApiKey: (provider: 'openrouter' | 'openai' | 'replicate', key: string) => void;
+  showSettings: boolean;
+  setShowSettings: (show: boolean) => void;
 }
 
 // Track if we've already triggered a sync this session
@@ -456,6 +466,19 @@ export const useStore = create<StudioStore>()(
           console.error('Failed to save batches to server:', error);
         });
       },
+
+      // API Keys (stored locally in browser)
+      apiKeys: {
+        openrouter: '',
+        openai: '',
+        replicate: '',
+      },
+      setApiKey: (provider, key) =>
+        set((state) => ({
+          apiKeys: { ...state.apiKeys, [provider]: key },
+        })),
+      showSettings: false,
+      setShowSettings: (show) => set({ showSettings: show }),
     }),
     {
       name: 'lumiere-studio',
@@ -463,7 +486,7 @@ export const useStore = create<StudioStore>()(
         // Only persist these fields
         batches: state.batches,
         assessments: state.assessments,
-        selectedRefs: state.selectedRefs,
+        selectedRefs: state.selectedRefs.filter(ref => !ref.startsWith('data:')),
         selectedModels: state.selectedModels,
         promptHistory: state.promptHistory,
         promptTemplates: state.promptTemplates,
@@ -472,6 +495,7 @@ export const useStore = create<StudioStore>()(
         aspect: state.aspect,
         quality: state.quality,
         quantity: state.quantity,
+        apiKeys: state.apiKeys,
       }),
       onRehydrateStorage: () => (state) => {
         // Called after Zustand has restored state from localStorage
