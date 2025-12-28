@@ -2,7 +2,6 @@ import { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useStore } from '../../stores/store';
 import { cn } from '../../utils/cn';
-import { Button } from '../ui/Button';
 
 export function Sidebar() {
   const batches = useStore((s) => s.batches);
