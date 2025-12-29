@@ -84,6 +84,14 @@ export const API = {
   LOCAL_LIBRARY: '/api/images/library',
 } as const;
 
+// Base path for images (for drag-to-terminal full paths)
+export const BETA_DIR = '/Users/jd/things/director/lumiere-studio/beta';
+
+// Helper to get full file path from relative filename
+export function getFullPath(file: string): string {
+  return `${BETA_DIR}/${file}`;
+}
+
 // Keyboard shortcuts
 export const SHORTCUTS = {
   GENERATE: 'Meta+Enter',

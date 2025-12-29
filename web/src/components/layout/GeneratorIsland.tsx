@@ -58,7 +58,39 @@ export function GeneratorIsland() {
   const handleDrop = (e: React.DragEvent) => {
     e.preventDefault();
     setIsDragOver(false);
-    const data = e.dataTransfer.getData('text/plain');
+
+    // Try internal app format first (relative filenames)
+    let data = e.dataTransfer.getData('application/x-lumiere-files');
+    if (data) {
+      try {
+        const parsed = JSON.parse(data);
+        const files: string[] = Array.isArray(parsed) ? parsed : [data];
+
+        let added = 0;
+        for (const file of files) {
+          if (selectedRefs.length + added >= 4) {
+            addToast({ message: 'Maximum 4 references allowed', type: 'error' });
+            break;
+          }
+          if (!selectedRefs.includes(file)) {
+            toggleRef(file);
+            added++;
+          }
+        }
+        if (added > 0) {
+          addToast({
+            message: added > 1 ? `Added ${added} references` : 'Added as reference',
+            type: 'success'
+          });
+        }
+        return;
+      } catch {
+        // Fall through to text/plain
+      }
+    }
+
+    // Fallback to text/plain (for external drops or legacy)
+    data = e.dataTransfer.getData('text/plain');
     if (data) {
       // Try to parse as JSON array, fallback to single file
       let files: string[];

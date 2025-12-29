@@ -3,6 +3,7 @@ import { cn } from '../../utils/cn';
 import { getImageUrl } from '../../api/server';
 import { useStore } from '../../stores/store';
 import { startDrag, endDrag, toggleDragSelect, useDragSelection, getDragSelectedFiles } from '../ui/DragLayer';
+import { getFullPath } from '../../utils/constants';
 import type { Assessment } from '../../types';
 
 // Create a transparent 1x1 image for hiding native drag preview
@@ -95,9 +96,13 @@ export function ImageCard({
     // Get all files to drag (either selection or just this file)
     const filesToDrag = isSelectedForDrag ? getDragSelectedFiles() : [file];
 
-    // Store all files as JSON in data transfer
-    e.dataTransfer.setData('text/plain', JSON.stringify(filesToDrag));
-    e.dataTransfer.setData('application/json', JSON.stringify(filesToDrag));
+    // Internal app use: custom MIME type with relative paths (for batches/refs)
+    e.dataTransfer.setData('application/x-lumiere-files', JSON.stringify(filesToDrag));
+
+    // Terminal/external: full absolute paths (space-separated for shell compatibility)
+    const fullPaths = filesToDrag.map(f => getFullPath(f));
+    e.dataTransfer.setData('text/plain', fullPaths.join(' '));
+
     e.dataTransfer.effectAllowed = 'copy';
 
     // Hide native drag preview by using a transparent image

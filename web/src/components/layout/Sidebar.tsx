@@ -82,7 +82,29 @@ export function Sidebar() {
   const handleDrop = (e: React.DragEvent, batchId: string) => {
     e.preventDefault();
     setDragOverId(null);
-    const data = e.dataTransfer.getData('text/plain');
+
+    // Try internal app format first (relative filenames)
+    let data = e.dataTransfer.getData('application/x-lumiere-files');
+    if (data) {
+      try {
+        const parsed = JSON.parse(data);
+        const files: string[] = Array.isArray(parsed) ? parsed : [data];
+
+        files.forEach(file => {
+          useStore.getState().addImageToBatch(batchId, file);
+        });
+        useStore.getState().addToast({
+          message: files.length > 1 ? `Added ${files.length} images to collection` : 'Added to collection',
+          type: 'success'
+        });
+        return;
+      } catch {
+        // Fall through to text/plain
+      }
+    }
+
+    // Fallback to text/plain (for external drops or legacy)
+    data = e.dataTransfer.getData('text/plain');
     if (data) {
       let files: string[];
       try {
