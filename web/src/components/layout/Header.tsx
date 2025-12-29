@@ -1,8 +1,11 @@
+import { useState } from 'react';
 import { useStore } from '../../stores/store';
 import { cn } from '../../utils/cn';
 import type { ViewType } from '../../types';
+import { UploadEditor } from '../ui/UploadEditor';
 
 export function Header() {
+  const [showUploadEditor, setShowUploadEditor] = useState(false);
   const currentView = useStore((s) => s.currentView);
   const setView = useStore((s) => s.setView);
   const queue = useStore((s) => s.queue);
@@ -87,6 +90,22 @@ export function Header() {
 
       {/* Right side controls */}
       <div className="flex items-center gap-2 md:gap-4 shrink-0">
+        {/* Upload & Edit button */}
+        <button
+          onClick={() => setShowUploadEditor(true)}
+          className={cn(
+            'px-2.5 py-2 md:px-3 md:py-1.5 rounded-lg transition-colors flex items-center gap-1.5 text-sm font-medium',
+            'min-h-[40px] min-w-[40px] justify-center',
+            'text-text-2 hover:text-text hover:bg-bg-2 active:bg-bg-3 border border-transparent hover:border-border'
+          )}
+          title="Upload & Edit Image"
+        >
+          <svg className="w-5 h-5 md:w-4 md:h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12" />
+          </svg>
+          <span className="hidden md:inline">Upload</span>
+        </button>
+
         {/* Publish link */}
         <button
           onClick={() => {
@@ -192,6 +211,9 @@ export function Header() {
           )}
         </div>
       </div>
+
+      {/* Upload & Edit Modal */}
+      <UploadEditor isOpen={showUploadEditor} onClose={() => setShowUploadEditor(false)} />
     </header>
   );
 }
