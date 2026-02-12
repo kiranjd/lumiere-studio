@@ -1,9 +1,9 @@
 import { useEffect } from 'react';
-import { motion } from 'framer-motion';
 import { useStore } from '../../stores/store';
 import { ImageCard, ProcessingCard } from '../cards/ImageCard';
 import { fetchGeneratedImages } from '../../api/server';
 import { MODELS } from '../../utils/constants';
+import { Onboarding } from '../ui/Onboarding';
 
 export function QueueView() {
   const queue = useStore((s) => s.queue);
@@ -71,36 +71,7 @@ export function QueueView() {
   }
 
   if (!hasContent) {
-    return (
-      <div className="flex-1 flex items-center justify-center">
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          className="text-center max-w-sm"
-        >
-          <div className="w-16 h-16 rounded-2xl bg-bg-3 border border-border flex items-center justify-center mx-auto mb-4">
-            <svg className="w-8 h-8 text-text-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={1.5}
-                d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"
-              />
-            </svg>
-          </div>
-          <h3 className="text-lg font-medium text-text mb-2">No images yet</h3>
-          <p className="text-text-3 text-sm mb-6">
-            Select references from the library, write a prompt, and generate your first images.
-          </p>
-          <div className="flex items-center justify-center gap-2 text-xs text-text-muted">
-            <kbd className="px-2 py-1 rounded bg-bg-3 border border-border">Cmd</kbd>
-            <span>+</span>
-            <kbd className="px-2 py-1 rounded bg-bg-3 border border-border">Enter</kbd>
-            <span className="ml-2">to generate</span>
-          </div>
-        </motion.div>
-      </div>
-    );
+    return <Onboarding />;
   }
 
   return (
